@@ -12,18 +12,11 @@ export class Car extends Vehicle {
     }
 
     displayInfo(): void {
-        console.log(`
-Car Information:
-Make: ${this.make}
-Model: ${this.model}
-Year: ${this.year}
-Color: ${this.color}
-Number of Doors: ${this.numDoors}
-        `);
+        console.log(`\nCar Information:\nMake: ${this.make}\nModel: ${this.model}\nYear: ${this.year}\nColor: ${this.color}\nNumber of Doors: ${this.numDoors}`);
     }
 
     performAction(): void {
-        console.log("🚗 Vrooom! The car accelerates quickly!");
+        console.log(`Driving the ${this.make} ${this.model}.`);
     }
 }
 
@@ -33,30 +26,18 @@ export class Truck extends Vehicle {
         model: string,
         year: number,
         color: string,
-        private cargoCapacity: number,
-        private is4x4: boolean
+        private loadCapacity: number,
+        private hasTrailer: boolean
     ) {
         super(make, model, year, color);
     }
 
     displayInfo(): void {
-        console.log(`
-Truck Information:
-Make: ${this.make}
-Model: ${this.model}
-Year: ${this.year}
-Color: ${this.color}
-Cargo Capacity: ${this.cargoCapacity} lbs
-4x4: ${this.is4x4 ? 'Yes' : 'No'}
-        `);
+        console.log(`\nTruck Information:\nMake: ${this.make}\nModel: ${this.model}\nYear: ${this.year}\nColor: ${this.color}\nLoad Capacity: ${this.loadCapacity} lbs\nHas Trailer: ${this.hasTrailer}`);
     }
 
     performAction(): void {
-        console.log("🚛 The truck is hauling heavy cargo!");
-    }
-
-    toggleFourWheelDrive(): void {
-        console.log("🚛 Engaging 4x4 mode for tough terrain!");
+        console.log(`The ${this.make} ${this.model} is hauling cargo.`);
     }
 }
 
@@ -66,25 +47,17 @@ export class Motorbike extends Vehicle {
         model: string,
         year: number,
         color: string,
-        private engineCC: number,
-        private hasABS: boolean
+        private engineSize: number,
+        private hasSaddlebags: boolean
     ) {
         super(make, model, year, color);
     }
 
     displayInfo(): void {
-        console.log(`
-Motorbike Information:
-Make: ${this.make}
-Model: ${this.model}
-Year: ${this.year}
-Color: ${this.color}
-Engine Size: ${this.engineCC}cc
-ABS: ${this.hasABS ? 'Yes' : 'No'}
-        `);
+        console.log(`\nMotorbike Information:\nMake: ${this.make}\nModel: ${this.model}\nYear: ${this.year}\nColor: ${this.color}\nEngine Size: ${this.engineSize} cc\nHas Saddlebags: ${this.hasSaddlebags}`);
     }
 
     performAction(): void {
-        console.log("🏍️ The motorbike leans into a sharp turn!");
+        console.log(`Revving the engine of the ${this.make} ${this.model}.`);
     }
 }
