@@ -2,14 +2,9 @@ import inquirer from 'inquirer';
 import { Vehicle } from './models/Vehicle.js';
 import { Car, Truck, Motorbike } from './models/VehicleTypes.js';
 
-// Store for existing vehicles
-const vehicles: Vehicle[] = [
-    new Car('Toyota', 'Camry', 2023, 'Silver', 4),
-    new Truck('Ford', 'F-150', 2023, 'Black', 2000, true),
-    new Motorbike('Honda', 'CBR', 2023, 'Red', 1000, true)
-];
+const vehicles: Vehicle[] = [];
 
-async function createVehicle(): Promise<Vehicle> {
+async function createVehicle(): Promise<void> {
     const { vehicleType } = await inquirer.prompt([
         {
             type: 'list',
@@ -19,158 +14,82 @@ async function createVehicle(): Promise<Vehicle> {
         }
     ]);
 
-    const commonQuestions = [
-        {
-            type: 'input',
-            name: 'make',
-            message: 'Enter the make:'
-        },
-        {
-            type: 'input',
-            name: 'model',
-            message: 'Enter the model:'
-        },
-        {
-            type: 'number',
-            name: 'year',
-            message: 'Enter the year:'
-        },
-        {
-            type: 'input',
-            name: 'color',
-            message: 'Enter the color:'
-        }
-    ];
+    const { make, model, year, color } = await inquirer.prompt([
+        { type: 'input', name: 'make', message: 'Enter vehicle make:' },
+        { type: 'input', name: 'model', message: 'Enter vehicle model:' },
+        { type: 'number', name: 'year', message: 'Enter vehicle year:' },
+        { type: 'input', name: 'color', message: 'Enter vehicle color:' }
+    ]);
 
-    const answers = await inquirer.prompt(commonQuestions);
-
-    switch (vehicleType) {
-        case 'Car': {
-            const { numDoors } = await inquirer.prompt([
-                {
-                    type: 'number',
-                    name: 'numDoors',
-                    message: 'Enter the number of doors:'
-                }
-            ]);
-            return new Car(answers.make, answers.model, answers.year, answers.color, numDoors);
-        }
-        case 'Truck': {
-            const { cargoCapacity, is4x4 } = await inquirer.prompt([
-                {
-                    type: 'number',
-                    name: 'cargoCapacity',
-                    message: 'Enter the cargo capacity (in lbs):'
-                },
-                {
-                    type: 'confirm',
-                    name: 'is4x4',
-                    message: 'Is this a 4x4 truck?'
-                }
-            ]);
-            return new Truck(answers.make, answers.model, answers.year, answers.color, cargoCapacity, is4x4);
-        }
-        case 'Motorbike': {
-            const { engineCC, hasABS } = await inquirer.prompt([
-                {
-                    type: 'number',
-                    name: 'engineCC',
-                    message: 'Enter the engine size (in CC):'
-                },
-                {
-                    type: 'confirm',
-                    name: 'hasABS',
-                    message: 'Does it have ABS?'
-                }
-            ]);
-            return new Motorbike(answers.make, answers.model, answers.year, answers.color, engineCC, hasABS);
-        }
-        default:
-            throw new Error('Invalid vehicle type');
+    let vehicle;
+    if (vehicleType === 'Car') {
+        const { numDoors } = await inquirer.prompt([
+            { type: 'number', name: 'numDoors', message: 'Enter number of doors:' }
+        ]);
+        vehicle = new Car(make, model, year, color, numDoors);
+    } else if (vehicleType === 'Truck') {
+        const { loadCapacity, hasTrailer } = await inquirer.prompt([
+            { type: 'number', name: 'loadCapacity', message: 'Enter load capacity (lbs):' },
+            { type: 'confirm', name: 'hasTrailer', message: 'Does it have a trailer?' }
+        ]);
+        vehicle = new Truck(make, model, year, color, loadCapacity, hasTrailer);
+    } else {
+        const { engineSize, hasSaddlebags } = await inquirer.prompt([
+            { type: 'number', name: 'engineSize', message: 'Enter engine size (cc):' },
+            { type: 'confirm', name: 'hasSaddlebags', message: 'Does it have saddlebags?' }
+        ]);
+        vehicle = new Motorbike(make, model, year, color, engineSize, hasSaddlebags);
     }
+
+    vehicles.push(vehicle);
+    console.log('Vehicle created successfully!');
 }
 
-async function selectVehicle(): Promise<Vehicle | undefined> {
-    const choices = vehicles.map((v, i) => ({
-        name: `${v.constructor.name} - ${v['make']} ${v['model']}`,
-        value: i
-    }));
+async function selectVehicle(): Promise<Vehicle | null> {
+    if (vehicles.length === 0) {
+        console.log('No vehicles available. Create one first.');
+        return null;
+    }
 
-    const { selectedIndex } = await inquirer.prompt([
+    const { selectedVehicle } = await inquirer.prompt([
         {
             type: 'list',
-            name: 'selectedIndex',
-            message: 'Select a vehicle:',
-            choices
+            name: 'selectedVehicle',
+            message: 'Select a vehicle to use:',
+            choices: vehicles.map((v, index) => ({ name: v.displayInfo(), value: index }))
         }
     ]);
 
-    return vehicles[selectedIndex];
+    return vehicles[selectedVehicle];
 }
 
-async function performActions(vehicle: Vehicle): Promise<void> {
-    while (true) {
-        const actions = ['Display Info', 'Perform Action'];
-        if (vehicle instanceof Truck) {
-            actions.push('Toggle 4x4');
-        }
-        actions.push('Exit');
+async function performVehicleAction(): Promise<void> {
+    const vehicle = await selectVehicle();
+    if (!vehicle) return;
+    
+    vehicle.performAction();
+}
 
+async function mainMenu() {
+    let exit = false;
+    while (!exit) {
         const { action } = await inquirer.prompt([
             {
                 type: 'list',
                 name: 'action',
                 message: 'What would you like to do?',
-                choices: actions
+                choices: ['Create Vehicle', 'Select and Use Vehicle', 'Exit']
             }
         ]);
 
-        switch (action) {
-            case 'Display Info':
-                vehicle.displayInfo();
-                break;
-            case 'Perform Action':
-                vehicle.performAction();
-                break;
-            case 'Toggle 4x4':
-                if (vehicle instanceof Truck) {
-                    vehicle.toggleFourWheelDrive();
-                }
-                break;
-            case 'Exit':
-                return;
-        }
-    }
-}
-
-async function main(): Promise<void> {
-    while (true) {
-        const { choice } = await inquirer.prompt([
-            {
-                type: 'list',
-                name: 'choice',
-                message: 'What would you like to do?',
-                choices: ['Create New Vehicle', 'Select Existing Vehicle', 'Exit']
-            }
-        ]);
-
-        if (choice === 'Exit') {
-            console.log('Goodbye!');
-            break;
-        }
-
-        let vehicle: Vehicle | undefined;
-        if (choice === 'Create New Vehicle') {
-            vehicle = await createVehicle();
-            vehicles.push(vehicle);
+        if (action === 'Create Vehicle') {
+            await createVehicle();
+        } else if (action === 'Select and Use Vehicle') {
+            await performVehicleAction();
         } else {
-            vehicle = await selectVehicle();
-        }
-
-        if (vehicle) {
-            await performActions(vehicle);
+            exit = true;
         }
     }
 }
 
-main().catch(console.error);
+mainMenu();
