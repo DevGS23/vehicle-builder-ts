@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "rootDir": "src",
+    "moduleResolution": "Bundler",
+    "allowJs": true,
+    "checkJs": true,
+    "outDir": "dist",
+    "noEmitOnError": true,
+    "esModuleInterop": false,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true
+  },
+  "include": ["src"]
+}
